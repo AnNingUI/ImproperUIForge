@@ -1,0 +1,9 @@
+
+item.modid.test=Test item
+item.modid.wizzard_staff=Wizzard Staff
+
+creative_tab.modid.root=Mod Name
+
+
+binds.iui_forge = "Improper UI API",
+binds.iui_forge.menu = "Open Home Screen"
