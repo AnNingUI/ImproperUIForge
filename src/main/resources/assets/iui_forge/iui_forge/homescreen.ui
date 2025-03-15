@@ -25,7 +25,8 @@ div #display {
     grid-columns: 1
 
     div #title {
-        inner-text: "$t$ui.text.improper_ui_interactives"
+        inner-text: "AAA $t{ui.text.improper_ui_interactives}"
+        is-i18n: true
         size: 100% 10
         text-align: center
         text-scale: 1.69
