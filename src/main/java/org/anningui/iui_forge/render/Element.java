@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class Element {
 
@@ -51,7 +52,7 @@ public class Element {
     public BackgroundClip backgroundClip, childrenConstraint;
     public ResourceLocation backgroundImage;
     public float opacity;
-    public boolean draggable, scrollable, clickThrough;
+    public boolean draggable, scrollable, clickThrough, isI18n;
     public int rotateX, rotateY, rotateZ;
     public Element hoverStyle, focusStyle, selectStyle;
 
@@ -165,6 +166,7 @@ public class Element {
         registerProperty("on-click", args -> clickAction = args.get(0).toString());
         registerProperty("on-key", args -> keyAction = args.get(0).toString());
 
+        registerProperty("is-i18n", args -> isI18n = args.get(0).toBool());
         registerProperty("inner-text", args -> innerText = StringUtils.color(args.getQuoteAndRemove()));
         registerProperty("inner-text-prefix", args -> innerTextPrefix = StringUtils.color(args.getQuoteAndRemove()));
         registerProperty("inner-text-suffix", args -> innerTextSuffix = StringUtils.color(args.getQuoteAndRemove()));
@@ -503,19 +505,23 @@ public class Element {
             return null;
 
         var text = innerText;
-        // 获取text首位字符是否为"$t$"
-        if (innerText.startsWith("$t$")) {
-            // innerText $t$ 后面的内容
-            var key = innerText.substring(3);
-            text = Component.translatable(key).getString();
-        }
 
         if (innerTextPrefix != null)
             text = innerTextPrefix + text;
         if (innerTextSuffix != null)
             text = text + innerTextSuffix;
+
+        if (isI18n) text = translateString(text);
+
         return text;
     }
+
+    public static String translateString(String str) {
+        return Pattern.compile("\\$t\\{([^{}]+)}")
+                .matcher(str)
+                .replaceAll(match -> Component.translatable(match.group(1)).getString());
+    }
+
 
     public void onRender(GuiGraphics context, int mx, int my, float delta) {
         if (parentPanel != null) {
