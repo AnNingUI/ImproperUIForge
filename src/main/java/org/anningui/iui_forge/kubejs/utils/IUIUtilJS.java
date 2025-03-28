@@ -2,6 +2,7 @@ package org.anningui.iui_forge.kubejs.utils;
 
 import net.minecraft.resources.ResourceLocation;
 import org.anningui.iui_forge.ImproperUIAPI;
+import org.anningui.iui_forge.config.Paths;
 import org.anningui.iui_forge.kubejs.event.callback.BaseCallbacks;
 import org.anningui.iui_forge.render.Element;
 import org.anningui.iui_forge.render.ImproperUIPanel;
@@ -22,7 +23,7 @@ public class IUIUtilJS {
 
     public static void parseAndRunFile(ResourceLocation id) {
         ImproperUIAPI.parseAndRunFile(id.getNamespace(), id.getPath() + ".ui");
-        File script = FileValidationUtils.rl2File(new ResourceLocation(id.getNamespace(), id.getPath() + ".ui"));
+        File script = FileValidationUtils.rl2File(new ResourceLocation(id.getNamespace(), id.getPath() + ".ui"), Paths.PathType.SCRIPT);
         new ImproperUIPanel(script, new BaseCallbacks(id)).open();
     }
 }

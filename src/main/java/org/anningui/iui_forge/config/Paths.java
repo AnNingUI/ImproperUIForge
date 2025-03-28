@@ -3,6 +3,11 @@ package org.anningui.iui_forge.config;
 import java.io.File;
 
 public class Paths {
+    public enum PathType {
+        SCRIPT,
+        CONFIG,
+        ASSET
+    }
 
     public static final String FOLDER = ".improper-ui/";
     public static final String SCRIPTS = FOLDER + "scripts/";
@@ -24,6 +29,18 @@ public class Paths {
 
     public static String getScripts(String modId) {
         return SCRIPTS + modId + "/";
+    }
+
+    public static String getAssets(String modId) {
+        return ASSETS + modId + "/";
+    }
+
+    public static String getPath(String modId, PathType type) {
+        return switch (type) {
+            case SCRIPT -> getScripts(modId);
+            case CONFIG -> getConfigs(modId);
+            case ASSET -> getAssets(modId);
+        };
     }
 
     public static String getConfigs(String modId) {

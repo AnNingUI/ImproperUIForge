@@ -51,9 +51,9 @@ public final class FileValidationUtils {
         }
     }
 
-    public static File rl2File(ResourceLocation rl) {
+    public static File rl2File(ResourceLocation rl, Paths.PathType type) {
         String namespace = rl.getNamespace();
         String path = rl.getPath();
-        return new File(Paths.getScripts(namespace) + path);
+        return new File(Paths.getPath(namespace, type) + path);
     }
 }

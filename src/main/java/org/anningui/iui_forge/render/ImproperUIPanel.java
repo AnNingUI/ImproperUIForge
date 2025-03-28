@@ -12,6 +12,7 @@ import org.anningui.iui_forge.script.ScriptParser;
 import org.anningui.iui_forge.util.ChatUtils;
 import org.anningui.iui_forge.util.RenderUtils;
 import org.anningui.iui_forge.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.File;
@@ -55,12 +56,12 @@ public class ImproperUIPanel extends Screen implements ContainerEventHandler {
     }
 
     @Override
-    public void renderBackground(GuiGraphics pGuiGraphics) {
+    public void renderBackground(@NotNull GuiGraphics pGuiGraphics) {
         super.renderBackground(pGuiGraphics);
     }
 
     @Override
-    public void render(GuiGraphics context, int mx, int my, float delta) {
+    public void render(@NotNull GuiGraphics context, int mx, int my, float delta) {
         if (selected != null && selected.draggable) {
             int dx = mx - cursor[0];
             int dy = my - cursor[1];
