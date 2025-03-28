@@ -4,12 +4,15 @@
 #683a68
 #9775a6
 
+
 div #background-gradient {
     size: 100%
     margin-top: 100%
     shadow-distance: 50%
     shadow-color: #9775a6
 }
+
+
 
 div #display {
     size: 420 240
@@ -51,6 +54,8 @@ div #display {
         background-color: none
         margin-bottom: 10
     }
+
+
 
     div #navbar {
         size: 100% 15
@@ -136,8 +141,7 @@ div #display {
 
         scrollable: true
         background-clip: padding
-
-        div #block { background-image: textures/block/ice.png; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
+        div #block { background-color: #00000000; background-image: "$svg{iui_forge:textures/svg/test.svg, 100%, 100%}"; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
         div #block { background-image: textures/block/ice.png; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
         div #block { background-image: textures/block/ice.png; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
         div #block { background-image: textures/block/ice.png; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }

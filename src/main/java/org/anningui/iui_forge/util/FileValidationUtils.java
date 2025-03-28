@@ -1,5 +1,8 @@
 package org.anningui.iui_forge.util;
 
+import net.minecraft.resources.ResourceLocation;
+import org.anningui.iui_forge.config.Paths;
+
 import java.io.*;
 
 public final class FileValidationUtils {
@@ -46,5 +49,11 @@ public final class FileValidationUtils {
         catch (Exception ex) {
             return "";
         }
+    }
+
+    public static File rl2File(ResourceLocation rl, Paths.PathType type) {
+        String namespace = rl.getNamespace();
+        String path = rl.getPath();
+        return new File(Paths.getPath(namespace, type) + path);
     }
 }

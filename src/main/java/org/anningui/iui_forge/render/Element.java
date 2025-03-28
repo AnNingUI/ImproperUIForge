@@ -4,8 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import org.anningui.iui_forge.render.constants.*;
 import org.anningui.iui_forge.render.elements.Positionable;
+import org.anningui.iui_forge.render.elements.svg.SvgRegistry;
 import org.anningui.iui_forge.render.math.Color;
 import org.anningui.iui_forge.render.math.Dimensions;
 import org.anningui.iui_forge.script.ScriptArgs;
@@ -62,6 +64,10 @@ public class Element {
     private final List<Element> children;
     private final Map<String, Consumer<ScriptArgs>> properties;
     private final List<String> queuedProperties;
+    public int originalWidth, originalHeight;
+
+    private float svgRatioX = 1.0F;
+    private float svgRatioY = 1.0F;
 
     public Element() {
         this(0, 0, 0, 0);
@@ -189,7 +195,7 @@ public class Element {
         registerProperty("visibility", args -> visibility = args.get(0).toEnum(Visibility.class));
         registerProperty("background-clip", args -> backgroundClip = args.get(0).toEnum(BackgroundClip.class));
         registerProperty("background-color", args -> fillColor = args.get(0).toColor());
-        registerProperty("background-image", args -> backgroundImage = new ResourceLocation(args.get(0).toString()));
+        registerProperty("background-image", args -> backgroundImage = getSvgOrImageUrl(args.getAll().toString()));
         registerProperty("opacity", args -> opacity = args.get(0).toFloat());
         registerProperty("draggable", args -> draggable = args.get(0).toBool());
         registerProperty("scrollable", args -> scrollable = args.get(0).toBool());
@@ -264,6 +270,8 @@ public class Element {
     }
 
     public Element size(int width, int height) {
+        this.originalWidth = width;
+        this.originalHeight = height;
         this.width = width;
         this.height = height;
         return this;
@@ -522,6 +530,98 @@ public class Element {
                 .replaceAll(match -> Component.translatable(match.group(1)).getString());
     }
 
+    private ResourceLocation encodeSvgRl(ResourceLocation rl) {
+        String namespace = rl.getNamespace();
+        String path = rl.getPath();
+        // path: textures/svg/test.svg -> textures_svg_test.svg
+        return new ResourceLocation(namespace, path.replaceAll("/", "_"));
+    }
+
+    public static ResourceLocation decodeSvgRl(ResourceLocation rl) {
+        String namespace = rl.getNamespace();
+        String path = rl.getPath();
+        // path: textures_svg_test.svg -> textures/svg/test.svg
+        return new ResourceLocation(namespace, path.replaceAll("_", "/"));
+    }
+
+    private ResourceLocation getSvgOrImageUrl(String str) {
+        try {
+            if (str.startsWith("\"$svg{") && str.endsWith("}\"")) {
+                var args = str.substring(6, str.length() - 2).split(",");
+                Function<String, Float> getFloat = ($str) -> {
+                    try {
+                        if ($str.endsWith("%")) {
+                            return Float.parseFloat($str.substring(0, $str.length() - 1)) / 100.0F;
+                        } else {
+                            return Float.parseFloat($str);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Failed to parse float value: " + $str);
+                        return 1.0F; // 默认值
+                    }
+                };
+
+                if (args.length == 1) {
+                    ResourceLocation resource = ResourceLocation.tryParse(args[0]);
+                    if (resource != null) {
+                        ResourceLocation svgRl = encodeSvgRl(resource);
+                        SvgRegistry.register(svgRl);
+                        return svgRl;
+                    } else {
+                        System.err.println("Invalid resource location: " + args[0]);
+                        return null;
+                    }
+                } else if (args.length == 2) {
+                    String str$1 = args[0].trim();
+                    String str$2 = args[1].trim();
+                    float ratio = getFloat.apply(str$2);
+                    svgRatioX = ratio;
+                    svgRatioY = ratio;
+                    ResourceLocation resource = ResourceLocation.tryParse(str$1);
+                    if (resource != null) {
+                        ResourceLocation svgRl = encodeSvgRl(resource);
+                        SvgRegistry.register(svgRl);
+                        return svgRl;
+                    } else {
+                        System.err.println("Invalid resource location: " + str$1);
+                        return null;
+                    }
+                } else if (args.length == 3) {
+                    String str$1 = args[0].trim();
+                    String str$2 = args[1].trim();
+                    String str$3 = args[2].trim();
+                    float ratioX = getFloat.apply(str$2);
+                    float ratioY = getFloat.apply(str$3);
+                    svgRatioX = ratioX;
+                    svgRatioY = ratioY;
+                    ResourceLocation resource = ResourceLocation.tryParse(str$1);
+                    if (resource != null) {
+                        ResourceLocation svgRl = encodeSvgRl(resource);
+                        SvgRegistry.register(svgRl);
+                        return svgRl;
+                    } else {
+                        System.err.println("Invalid resource location: " + str$1);
+                        return null;
+                    }
+                } else {
+                    System.err.println("Invalid SVG format: " + str);
+                    return null;
+                }
+            } else {
+                ResourceLocation resource = ResourceLocation.tryParse(str);
+                if (resource != null) {
+                    return resource;
+                } else {
+                    System.err.println("Invalid resource location: " + str);
+                    return null;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error parsing SVG or Image URL: " + str + ", " + e.getMessage());
+            return null;
+        }
+    }
+
 
     public void onRender(GuiGraphics context, int mx, int my, float delta) {
         if (parentPanel != null) {
@@ -593,8 +693,8 @@ public class Element {
                         backgroundImage,
                         x + marginLeft - paddingLeft,
                         y + marginTop - paddingTop,
-                        width + paddingLeft + paddingRight,
-                        height + paddingTop + paddingBottom,
+                        (int) (width * svgRatioX) + paddingLeft + paddingRight,
+                        (int) (height * svgRatioY) + paddingTop + paddingBottom,
                         borderRadius
                 );
             }
@@ -851,6 +951,19 @@ public class Element {
 
     public List<Element> collectOrdered() {
         return new ArrayList<>(collect().stream().sorted(ORDER).toList());
+    }
+
+    // 获取原来大小与现在大小的比例
+    public RatioTuple getRatio() {
+        float widthRatio = originalWidth == 0 ? 1 : (float) width / originalWidth; // 避免除以零
+        float heightRatio = originalHeight == 0 ? 1 : (float) height / originalHeight; // 避免除以零
+        return new RatioTuple(widthRatio, heightRatio);
+    }
+
+    public record RatioTuple(float widthRatio, float heightRatio) {
+        public String toString() {
+            return widthRatio + "x" + heightRatio;
+        }
     }
 
     private Element parsePropertiesThenSet(Element target, String excerpt) {

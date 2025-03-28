@@ -20,7 +20,7 @@ public class ImproperUIAPI {
     private static final Map<String, InitContext> CONTEXTS = new HashMap<>();
 
     /**
-     * Example: ImproperUI.init("iui_nf", ImproperUI.class, "scripts/example.ui");
+     * Example: ImproperUI.init("iui_forge", ImproperUI.class, "scripts/example.ui");
      * @param modId YOUR mod's mod ID
      * @param initializer YOUR mod's main initializer, NOT CLIENT INITIALIZER
      * @param scriptPaths Target script files

@@ -7,8 +7,10 @@ import org.anningui.iui_forge.util.misc.Pair;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class Properties {
+    private final Logger logger = Logger.getLogger(Properties.class.getName());
 
     private final Map<String, Value> properties;
 
@@ -53,7 +55,7 @@ public class Properties {
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            logger.throwing(getClass().getName(), "read(java.io.InputStream)", ex);
         }
     }
 
@@ -68,7 +70,7 @@ public class Properties {
             bw.flush();
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            logger.throwing(getClass().getName(), "write(java.io.OutputStream)", ex);
         }
     }
 
@@ -80,7 +82,7 @@ public class Properties {
             read(fis);
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            logger.throwing(getClass().getName(), "read(String, String)", ex);
         }
     }
 
@@ -93,7 +95,7 @@ public class Properties {
             write(fos);
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            logger.throwing(getClass().getName(), "write(String, String)", ex);
         }
     }
 

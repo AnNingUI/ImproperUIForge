@@ -11,7 +11,7 @@ public interface CallbackListener {
                 continue;
             try {
                 if (method.getAnnotation(CallbackHandler.class) == null)
-                    error("specified callback method must have annotation: @cn.ksmcbrigade.iui_nf.script.CallbackHandler");
+                    error("specified callback method must have annotation: @org.anningui.iui_forge.script.CallbackHandler");
                 if (method.getParameterCount() == 0)
                     error("specified callback method must have one Event parameter");
 

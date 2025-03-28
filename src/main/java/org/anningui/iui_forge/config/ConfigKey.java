@@ -14,7 +14,7 @@ public class ConfigKey {
 
         switch (split.length) {
             case 2 -> {
-                this.modId = "iui_nf";
+                this.modId = "iui_forge";
                 this.path = split[0];
                 this.key = split[1];
             }
