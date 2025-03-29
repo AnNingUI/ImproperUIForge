@@ -42,7 +42,7 @@ div #center {
         placeholder: "real"
         input-mask: "\\\\\\d*"
     }
-
+    div #block { background-color: #00000000; background-image: "$svg{iui_forge:textures/svg/test.svg, 100%, 100%}"; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
     textarea -config.properties:testing-textarea {
         size: 100
     }

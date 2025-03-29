@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
+import static java.awt.image.BufferedImage.TYPE_INT_ARGB_PRE;
 
 public class SvgUtils {
     private static final Logger logger = Logger.getLogger(SvgUtils.class.getName());
@@ -51,7 +51,7 @@ public class SvgUtils {
             SVGDocument svgDocument = loader.load(svgStream, null, LoaderContext.builder().build());
             if (svgDocument != null) {
                 FloatSize size = svgDocument.size();
-                BufferedImage image = new BufferedImage((int) size.width,(int) size.height, TYPE_INT_ARGB);
+                BufferedImage image = new BufferedImage((int) size.width,(int) size.height, TYPE_INT_ARGB_PRE);
                 Graphics2D g = image.createGraphics();
                 g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
                 g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
@@ -66,6 +66,14 @@ public class SvgUtils {
             return Optional.empty();
         }
         return Optional.empty();
+    }
+
+    public static int reverseColorR2b(int color) {
+        int r = (color >> 16) & 0xff;
+        int g = (color >> 8) & 0xff;
+        int b = color & 0xff;
+        int a = (color >> 24) & 0xff;
+        return (b << 16) | (g << 8) | r | (a << 24);
     }
 
     /**
@@ -84,7 +92,7 @@ public class SvgUtils {
             for (int x = 0; x < width; x++) {
                 int pixel = img.getRGB(x, y);
                 // Set the pixel in NativeImage (RGBA format)
-                nativeImage.setPixelRGBA(x, y, pixel);
+                nativeImage.setPixelRGBA(x, y, reverseColorR2b(pixel));
             }
         }
         return nativeImage;

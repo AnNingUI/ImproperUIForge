@@ -141,7 +141,7 @@ div #display {
 
         scrollable: true
         background-clip: padding
-        div #block { background-color: #00000000; background-image: "$svg{iui_forge:textures/svg/test.svg, 100%, 100%}"; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
+        div #block { background-image: textures/block/ice.png; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
         div #block { background-image: textures/block/ice.png; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
         div #block { background-image: textures/block/ice.png; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
         div #block { background-image: textures/block/ice.png; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
@@ -296,7 +296,6 @@ div #display {
         div #block { background-image: textures/block/grass_block_side.png; size: 20; draggable: true; hovered => { border-thickness: 1; border-color: white; } }
     }
 }
-
 
 
 
