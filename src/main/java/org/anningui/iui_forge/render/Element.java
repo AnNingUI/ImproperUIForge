@@ -530,7 +530,7 @@ public class Element {
                 .replaceAll(match -> Component.translatable(match.group(1)).getString());
     }
 
-    private ResourceLocation encodeSvgRl(ResourceLocation rl) {
+    private  ResourceLocation encodeSvgRl(ResourceLocation rl) {
         String namespace = rl.getNamespace();
         String path = rl.getPath();
         // path: textures/svg/test.svg -> textures_svg_test.svg

@@ -19,7 +19,7 @@ public class SvgRegistry {
     private static final Minecraft client = Minecraft.getInstance();
     private static final TextureManager textureManager = client.getTextureManager();
 
-    private static final ResourceLocation DEFAULT_SVG_ID = new ResourceLocation("iui_forge", "textures/svg/test.svg");
+    private static final ResourceLocation DEFAULT_SVG_ID = new ResourceLocation("iui_forge", "textures_svg_test.svg");
 
     static {
         register(DEFAULT_SVG_ID);
@@ -29,13 +29,11 @@ public class SvgRegistry {
         try {
             var rl = new ResourceLocation(nameSpace, svgId);
             Optional<NativeImage> image = SvgUtils.getSvgImage(decodeSvgRl(rl).toString());
-            ResourceLocation resourceLocation = new ResourceLocation(nameSpace, svgId);
-            if (image.isPresent() && !svgRegistry.containsKey(resourceLocation)) {
+            if (image.isPresent() && !svgRegistry.containsKey(rl)) {
                 NativeImage nativeImage = image.get();
-                System.out.println("nativeImage size: " + nativeImage.getWidth() + "x" + nativeImage.getHeight());
-                svgRegistry.put(resourceLocation, nativeImage);
+                svgRegistry.put(rl, nativeImage);
                 DynamicTexture texture = new DynamicTexture(nativeImage);
-                textureManager.register(resourceLocation, texture);
+                textureManager.register(rl, texture);
             }
         } catch (Exception e) {
             logger.warning("Failed to register SVG image: " + nameSpace + ":" + svgId);
@@ -54,4 +52,25 @@ public class SvgRegistry {
         return image;
     }
 
+    private static Map<ResourceLocation, NativeImage> getAllRegistry() {
+        return svgRegistry;
+    }
+
+    private static void setImage(ResourceLocation resourceLocation, NativeImage image) {
+        svgRegistry.put(resourceLocation, image);
+    }
+
+    public static void reload() {
+        getAllRegistry().forEach((resourceLocation, nativeImage) -> {
+            ResourceLocation decodeRl = decodeSvgRl(resourceLocation);
+            Optional<NativeImage> image = SvgUtils.getSvgImage(decodeRl.toString());
+            if (image.isPresent()) {
+                NativeImage newNativeImage = image.get();
+                DynamicTexture texture = new DynamicTexture(newNativeImage);
+                textureManager.release(resourceLocation);
+                textureManager.register(resourceLocation, texture);
+                setImage(resourceLocation, newNativeImage);
+            }
+        });
+    }
 }
