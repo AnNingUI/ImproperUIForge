@@ -1,0 +1,53 @@
+div #exmpl_for {
+    background-color: #40FFFFFF
+    border-radius: 5
+    size: 420 240
+    center: both
+    padding: 10
+
+    child-align: grid
+
+
+    template #blockTemplate {
+        args: i
+        tag-name: div
+        class-name: "block_${i}"
+        background-image: textures/block/ice.png
+        draggable: true
+        children {
+            div {
+                inner-text: "Block $ctx{i}"
+            }
+        }
+    }
+
+    for-div #forId {
+        range: "0..=20"
+        index-name: i
+        body {
+            use: blockTemplate
+        }
+    }
+
+    // or
+
+    for-div #forId {
+        range: "0..=20"
+        index-name: i
+        body {
+            create {
+                name: div
+                class: "block_${i}"
+                background-image: textures/block/ice.png
+                draggable: true
+                hovered => { border-thickness: 1; border-color: white; }
+            }
+        }
+    }
+
+    // or
+
+    for-div #forId {
+        range-use: "$rangeUse{0..=20, blockTemplate}"
+    }
+}

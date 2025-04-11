@@ -343,9 +343,7 @@ public class Element {
         this.x += deltaX;
         this.y += deltaY;
 
-        this.children.stream().filter(child -> {
-            return child.position == Position.ABSOLUTE;
-        }).forEach(child -> {
+        this.children.stream().filter(child -> child.position == Position.ABSOLUTE).forEach(child -> {
             child.move(deltaX, deltaY);
         });
     }
@@ -357,9 +355,7 @@ public class Element {
         this.x = x;
         this.y = y;
 
-        this.children.stream().filter(child -> {
-            return child.position == Position.ABSOLUTE;
-        }).forEach(child -> {
+        this.children.stream().filter(child -> child.position == Position.ABSOLUTE).forEach(child -> {
             child.move(delX, delY);
         });
     }
@@ -375,9 +371,18 @@ public class Element {
 
     public void boundInConstraints() {
         var constraint = getConstraint();
-        if (constraint != null)
+        // ===== 添加 isEmpty 判断 ======
+        if (constraint != null && !isEmpty(constraint)) {
+        // ============================
             boundIn(constraint);
+        }
     }
+
+    // ===== 判断元素是否在可视区域内 ======
+    private boolean isEmpty(Dimensions dim) {
+        return dim.width <= 0 || dim.height <= 0;
+    }
+    // ================================
 
     public Dimensions getConstraint() {
         if (parent == null)
@@ -397,6 +402,18 @@ public class Element {
     public void addChild(Element child) {
         if (child == null || child == this || child.parent != null || children.contains(child))
             return;
+
+        // ===== 添加子元素时，检测循环引用 ======
+        // 检测循环引用
+        Element current = this;
+        while (current != null) {
+            if (current == child) {
+                throw new IllegalArgumentException("Detected circular reference: child is already an ancestor of this element.");
+            }
+            current = current.parent;
+        }
+        // ==================================
+
         children.add(child);
         child.parent = this;
     }
@@ -477,10 +494,18 @@ public class Element {
         queueProperty(entry, false);
     }
 
+    protected List<String> getQueuedProperties() {
+        return new ArrayList<>(queuedProperties);
+    }
+
     public void style() {
         order = sequence++;
         queuedProperties.forEach(this::callProperty);
-        children.forEach(Element::style);
+        // 优化子元素的遍历和排序
+        List<Element> orderedChildren = getChildrenOrdered();
+        for (Element child : orderedChildren) {
+            child.style();
+        }
 
         int column, rowY, columnX;
         column = rowY = columnX = 0;
@@ -740,7 +765,15 @@ public class Element {
     }
 
     public void onRenderChildren(GuiGraphics context, int mx, int my, float delta) {
-        getChildren().forEach(child -> child.onRender(context, mx, my, delta));
+//        getChildren().forEach(child -> child.onRender(context, mx, my, delta));
+        // ===== 在 onRenderChildren 方法中使用迭代代替递归，以减少性能开销。 =====
+        Deque<Element> stack = new ArrayDeque<>(children);
+        while (!stack.isEmpty()) {
+            Element child = stack.pop();
+            child.onRender(context, mx, my, delta);
+            stack.addAll(child.getChildren());
+        }
+        // ================================================================
     }
 
     public void onLeftClick(int mx, int my, boolean release) {

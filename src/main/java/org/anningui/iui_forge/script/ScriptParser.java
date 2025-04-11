@@ -1,16 +1,16 @@
 package org.anningui.iui_forge.script;
 
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.ModLoader;
 import org.anningui.iui_forge.config.PropertyCache;
 import org.anningui.iui_forge.render.Element;
+import org.anningui.iui_forge.render.ElementTagRegistrationEvent;
 import org.anningui.iui_forge.render.elements.*;
 import org.anningui.iui_forge.util.ChatUtils;
 import org.anningui.iui_forge.util.StringUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class ScriptParser {
@@ -55,6 +55,9 @@ public class ScriptParser {
         this.put("h6", () -> new Header(0.8F));
     }};
 
+    private static final Map<String, Supplier<? extends Element>> tagSuppliersAdder = new HashMap<>() {{
+        ElementTagRegistrationEvent.Target.init(this);
+    }};
 
 
     public static List<Element> parseFile(File file) {
@@ -89,7 +92,19 @@ public class ScriptParser {
     }
 
     private static Element parseInternal0(String tag, String excerpt) {
-        Element element = tagSuppliers.getOrDefault(tag, Element::new).get();
+        Element element;
+        Optional<Supplier<? extends Element>> element$o = Optional.ofNullable(tagSuppliers.get(tag));
+
+        if (element$o.isPresent()) {
+            element = element$o.get().get();
+        } else {
+            Optional<Supplier<? extends Element>> element$adder = Optional.ofNullable(tagSuppliersAdder.get(tag));
+            if (element$adder.isPresent()) {
+                element = element$adder.get().get();
+            } else {
+                element = new Element();
+            }
+        }
 
         if (excerpt.matches(ELEMENT)) {
             callAttributes(element, getAttributes(excerpt));
